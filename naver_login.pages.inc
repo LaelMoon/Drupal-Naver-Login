@@ -12,7 +12,6 @@
 function naver_login_auth_request() {
 
   $naver_login_client_id = NULL;
-  $naver_login_client_secret = NULL;
   $naver_login_request_uri = variable_get('naver_login_callback_uri', NULL);
 
   if (user_is_logged_in() && !isset($_SESSION['naver_login_loggedin_user_want_connect']) ){
@@ -21,7 +20,6 @@ function naver_login_auth_request() {
 
   if ((bool) variable_get('naver_login_client_id', FALSE) && (bool) variable_get('naver_login_client_secret', FALSE)) {
     $naver_login_client_id = variable_get('naver_login_client_id', NULL);
-    $naver_login_client_secret = variable_get('naver_login_client_secret', NULL);
     $naver_login_request_uri = variable_get('naver_login_callback_uri', NULL);
   }
   else{
@@ -271,15 +269,13 @@ function naver_login_auth_register($form, &$form_state) {
       return;
     }
 
-    $form['account']['name']['#value'] = empty($form_state['input']['name']) ? $naver_userinfo_nickname : $form_state['input']['name'];
-    $form['account']['mail']['#value'] = empty($form_state['input']['mail']) ? $naver_userinfo_email : $form_state['input']['mail'];
-  
-          
+    $form['account']['name']['#value'] = empty($form_state['values']['name']) ? $naver_userinfo_nickname : $form_state['values']['name'];
+    $form['account']['mail']['#value'] = empty($form_state['values']['mail']) ? $naver_userinfo_email : $form_state['values']['mail'];
+
     $form['#validate'][] = 'naver_login_register_form_validate';
     $form['#submit'][] = 'naver_login_register_form_submit';
-    
-    return $form;
 
+    return $form;
 
   }
 
