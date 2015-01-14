@@ -60,7 +60,7 @@ function naver_login_auth_retrieve() {
     drupal_goto();
   }
 
-  if (!isset($_GET['code']) || !isset($_GET['state']) || !isset($_SESSION['naver_login']['naver_login_state_token']) ) {
+  if (!isset($_GET['code']) || !isset($_GET['state']) || !isset($_SESSION['naver_login']['naver_login_state_token'])) {
     drupal_goto();
   }
 
@@ -74,94 +74,94 @@ function naver_login_auth_retrieve() {
    * Step 1. Retrieve ACCESS TOKEN using $_GET['code'] value.
    */
 
-    $http_params = array(
-      'grant_type' => 'authorization_code',
-      'client_id' => $naver_login_client_id,
-      'client_secret' => $naver_login_client_secret,
-      'code' => $_GET['code'],
-      'state' => $_SESSION['naver_login']['naver_login_state_token'],
-    );
+  $http_params = array(
+    'grant_type' => 'authorization_code',
+    'client_id' => $naver_login_client_id,
+    'client_secret' => $naver_login_client_secret,
+    'code' => $_GET['code'],
+    'state' => $_SESSION['naver_login']['naver_login_state_token'],
+  );
 
-    $curl_opt = array(
-      CURLOPT_URL => 'https://nid.naver.com/oauth2.0/token',
-      CURLOPT_POST => TRUE,
-      CURLOPT_POSTFIELDS => http_build_query($http_params),
-      CURLOPT_RETURNTRANSFER => TRUE,
-      CURLOPT_CONNECTTIMEOUT => 10,
-      CURLOPT_TIMEOUT => 10,
-      CURLOPT_HTTPHEADER => array(
-        "Host: nid.naver.com",
-        "Pragma: no-cache",
-        "Accept: */*",
-      ),
-    );
+  $curl_opt = array(
+    CURLOPT_URL => 'https://nid.naver.com/oauth2.0/token',
+    CURLOPT_POST => TRUE,
+    CURLOPT_POSTFIELDS => http_build_query($http_params),
+    CURLOPT_RETURNTRANSFER => TRUE,
+    CURLOPT_CONNECTTIMEOUT => 10,
+    CURLOPT_TIMEOUT => 10,
+    CURLOPT_HTTPHEADER => array(
+      "Host: nid.naver.com",
+      "Pragma: no-cache",
+      "Accept: */*",
+    ),
+  );
 
-    $curl_connection = curl_init();
-    curl_setopt_array($curl_connection, $curl_opt);
-    $curl_results = curl_exec($curl_connection);
-    curl_close($curl_connection);
+  $curl_connection = curl_init();
+  curl_setopt_array($curl_connection, $curl_opt);
+  $curl_results = curl_exec($curl_connection);
+  curl_close($curl_connection);
 
-    $curl_results_obj= json_decode($curl_results);
+  $curl_results_obj= json_decode($curl_results);
 
-    if($curl_results_obj == NULL || isset($curl_results_obj->error)){
-      // Error
-      drupal_goto();
-    }
-    else{
-      // Success
-      $naver_login_access_user_access_token = $curl_results_obj->access_token;
-    }
+  if($curl_results_obj == NULL || isset($curl_results_obj->error)){
+    // Error
+    drupal_goto();
+  }
+  else{
+    // Success
+    $naver_login_access_user_access_token = $curl_results_obj->access_token;
+  }
 
   /**
    * Step 2. Retrieve ACCESS TOKEN using $_GET['code'] value.
    */
 
-    $curl_auth_header = "Authorization: Bearer " . $naver_login_access_user_access_token;
+  $curl_auth_header = "Authorization: Bearer " . $naver_login_access_user_access_token;
 
-    $curl_opt = array(
-      CURLOPT_URL => "https://apis.naver.com/nidlogin/nid/getUserProfile.xml",
-      CURLOPT_POST => TRUE,
-      CURLOPT_RETURNTRANSFER => TRUE,
-      CURLOPT_CONNECTTIMEOUT => 10,
-      CURLOPT_TIMEOUT => 10,
-      CURLOPT_HTTPHEADER => array(
-        "Host: apis.naver.com",
-        "Pragma: no-cache",
-        "Accept: */*",
-        $curl_auth_header,
-      ),
-    );
+  $curl_opt = array(
+    CURLOPT_URL => "https://apis.naver.com/nidlogin/nid/getUserProfile.xml",
+    CURLOPT_POST => TRUE,
+    CURLOPT_RETURNTRANSFER => TRUE,
+    CURLOPT_CONNECTTIMEOUT => 10,
+    CURLOPT_TIMEOUT => 10,
+    CURLOPT_HTTPHEADER => array(
+      "Host: apis.naver.com",
+      "Pragma: no-cache",
+      "Accept: */*",
+      $curl_auth_header,
+    ),
+  );
 
-    $curl_connection = curl_init();
-    curl_setopt_array($curl_connection, $curl_opt);
-    $curl_results = curl_exec($curl_connection);
-    curl_close($curl_connection);
+  $curl_connection = curl_init();
+  curl_setopt_array($curl_connection, $curl_opt);
+  $curl_results = curl_exec($curl_connection);
+  curl_close($curl_connection);
 
-    $user_profile_xml = simplexml_load_string($curl_results, 'SimpleXMLElement', LIBXML_NOCDATA);
+  $user_profile_xml = simplexml_load_string($curl_results, 'SimpleXMLElement', LIBXML_NOCDATA);
 
-    if($user_profile_xml == NULL
-      || !isset($user_profile_xml->result)
-      || !isset($user_profile_xml->result->resultcode)
-      || $user_profile_xml->result->resultcode != '00'){
+  if($user_profile_xml == NULL
+    || !isset($user_profile_xml->result)
+    || !isset($user_profile_xml->result->resultcode)
+    || $user_profile_xml->result->resultcode != '00'){
 
-      // error
-      drupal_goto();
-    }
+    // error
+    drupal_goto();
+  }
 
   /**
-    * Step 3. Processing user profile.
-    */
-    $user_profile_array = json_decode(json_encode($user_profile_xml), TRUE);
+   * Step 3. Processing user profile.
+   */
+  $user_profile_array = json_decode(json_encode($user_profile_xml), TRUE);
 
-    $_SESSION[$_GET['state']]['user_profile'] = serialize($user_profile_array);
-    
-    drupal_goto('naver_login/auth/register', 
-      array(
-        'query'=>array(
-          'state' => $_GET['state'],
-        ),
-      )
-    );
+  $_SESSION[$_GET['state']]['user_profile'] = serialize($user_profile_array);
+  
+  drupal_goto('naver_login/auth/register', 
+    array(
+      'query'=>array(
+        'state' => $_GET['state'],
+      ),
+    )
+  );
 
 }
 
@@ -206,9 +206,7 @@ function naver_login_auth_register($form, &$form_state) {
       $exist_user = NULL;
     }
   }
-      
-    
-    
+
   if( user_is_logged_in() && isset($_SESSION['naver_login_loggedin_user_want_connect']) ) {
     global $user;
     
@@ -224,7 +222,6 @@ function naver_login_auth_register($form, &$form_state) {
       $data['data']['naver_login_userinfo_birthday'] = $naver_userinfo_birthday;
       $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
       $user = user_save($user, $data);
-
     }
     else{
       drupal_set_message(t('Your account email is differ from Naver account. connection failed.'), 'error');
