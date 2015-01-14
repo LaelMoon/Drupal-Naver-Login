@@ -70,8 +70,8 @@ function naver_login_auth_retrieve() {
     drupal_goto();
   }
 
-  /**
-   * Step 1. Retrieve ACCESS TOKEN using $_GET['code'] value.
+  /* 
+    Step 1. Retrieve ACCESS TOKEN using $_GET['code'] value.
    */
 
   $http_params = array(
