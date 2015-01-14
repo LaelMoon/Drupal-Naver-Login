@@ -7,14 +7,13 @@
 
 /**
  * Generate naver login service request context.
- * 
  */
 function naver_login_auth_request() {
 
   $naver_login_client_id = NULL;
   $naver_login_request_uri = variable_get('naver_login_callback_uri', NULL);
 
-  if (user_is_logged_in() && !isset($_SESSION['naver_login_loggedin_user_want_connect']) ){
+  if (user_is_logged_in() && !isset($_SESSION['naver_login_loggedin_user_want_connect'])) {
     drupal_goto();
   }
 
@@ -22,11 +21,11 @@ function naver_login_auth_request() {
     $naver_login_client_id = variable_get('naver_login_client_id', NULL);
     $naver_login_request_uri = variable_get('naver_login_callback_uri', NULL);
   }
-  else{
+  else {
     drupal_goto();
   }
 
-  // generate state token TO prevent CSRF exploit.
+  // Generate state token TO prevent CSRF exploit.
   $naver_login_state_token = md5(drupal_random_bytes(32));
   $_SESSION['naver_login']['naver_login_state_token'] = $naver_login_state_token;
 
@@ -34,24 +33,22 @@ function naver_login_auth_request() {
     'response_type' => 'code',
     'client_id' => $naver_login_client_id,
     'state' => $naver_login_state_token,
-    'redirect_uri' => $naver_login_request_uri,    
+    'redirect_uri' => $naver_login_request_uri,
   );
 
   $naver_login_service_request_uri = 'https://nid.naver.com/oauth2.0/authorize?' . http_build_query($http_params);
 
   header('Location: ' . $naver_login_service_request_uri);
-
 }
 
 /**
- * retrieve naver login service response context.
- * 
+ * Retrieve naver login service response context.
  */
 function naver_login_auth_retrieve() {
   $naver_login_client_id = NULL;
   $naver_login_client_secret = NULL;
 
-  if (user_is_logged_in() && !isset($_SESSION['naver_login_loggedin_user_want_connect']) ){
+  if (user_is_logged_in() && !isset($_SESSION['naver_login_loggedin_user_want_connect'])) {
     drupal_goto();
   }
 
@@ -59,7 +56,7 @@ function naver_login_auth_retrieve() {
     $naver_login_client_id = variable_get('naver_login_client_id', NULL);
     $naver_login_client_secret = variable_get('naver_login_client_secret', NULL);
   }
-  else{
+  else {
     drupal_goto();
   }
 
@@ -68,14 +65,14 @@ function naver_login_auth_retrieve() {
   }
 
   if ($_GET['state'] != $_SESSION['naver_login']['naver_login_state_token']) {
-    // if invalid -> unset token and goto main page.
+    // If invalid -> unset token and goto main page.
     unset($_SESSION['naver_login']['naver_login_state_token']);
     drupal_goto();
   }
 
   /**
-    * Step 1. Retrieve ACCESS TOKEN using $_GET['code'] value.
-    */
+   * Step 1. Retrieve ACCESS TOKEN using $_GET['code'] value.
+   */
 
     $http_params = array(
       'grant_type' => 'authorization_code',
@@ -107,17 +104,17 @@ function naver_login_auth_retrieve() {
     $curl_results_obj= json_decode($curl_results);
 
     if($curl_results_obj == NULL || isset($curl_results_obj->error)){
-      // error
+      // Error
       drupal_goto();
     }
     else{
-      // success
+      // Success
       $naver_login_access_user_access_token = $curl_results_obj->access_token;
     }
 
   /**
-    * Step 2. Retrieve ACCESS TOKEN using $_GET['code'] value.
-    */
+   * Step 2. Retrieve ACCESS TOKEN using $_GET['code'] value.
+   */
 
     $curl_auth_header = "Authorization: Bearer " . $naver_login_access_user_access_token;
 
