@@ -1,0 +1,76 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function naver_login_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  if (!function_exists('curl_init')) {
+    $requirements['curl']['title'] = $t('cURL library');
+    $requirements['curl']['value'] = $t('Not installed');
+    $requirements['curl']['severity'] = REQUIREMENT_ERROR;
+    $requirements['curl']['description'] = $t('The cURL library is not installed. Please check the <a href="@url">PHP cURL documentation</a> for information on how to correct this.', array('@url' => 'http://www.php.net/manual/en/curl.setup.php'));
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function naver_login_uninstall() {
+  variable_del('naver_login_client_id');
+  variable_del('naver_login_client_secret');
+  variable_del('naver_login_callback_uri');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function naver_login_schema() {
+  $schema['naver_login_users'] = array(
+    'fields' => array(
+      'drupal_user_index_no' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'naver_enc_id' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'connect_timestamp' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'unique keys' => array(
+      'drupal_user_index_no' => array('drupal_user_index_no'),
+    ),
+    'primary key' => array('naver_enc_id'),
+  );
+
+  return $schema;
+}
+
+/**
+* Implement hook_enable()
+*/
+function naver_login_enable() {
+  //Check if table exists, if not install the schema.
+  if(db_table_exists('naver_login_users') == FALSE) {
+    drupal_install_schema('naver_login');
+  }
+}

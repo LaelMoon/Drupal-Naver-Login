@@ -1,0 +1,281 @@
+<?php
+
+/**
+ * @file
+ * Configuration functions for the module.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function naver_login_menu() {
+
+  $items['admin/config/people/naver_login'] = array(
+    'title' => 'Naver Login Settings',
+    'description' => 'Configure required settings for Naver Login.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('naver_login_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'naver_login.admin.inc',
+  );
+
+  $items['naver_login/auth/request'] = array(
+    'page callback' => 'naver_login_auth_request',
+    //'page arguments' => array('naver_login_auth_request'),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'naver_login.pages.inc',
+  );
+
+  $items['naver_login/auth/retrieve'] = array(
+    //'page callback' => 'drupal_get_form',
+    'page callback' => 'naver_login_auth_retrieve',
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    //'page arguments' => array('naver_login_auth_retrieve'),
+    //'access callback' => 'user_is_anonymous',
+    'type' => MENU_CALLBACK,
+    'file' => 'naver_login.pages.inc',
+  );
+
+  $items['naver_login/auth/register'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('naver_login_auth_register'),
+    'access callback' => 'user_is_anonymous',
+    'type' => MENU_CALLBACK,
+    'file' => 'naver_login.pages.inc',
+  );
+  
+  return $items;
+}
+
+/**
+ * Implements hook_user_categories().
+ */
+function naver_login_user_categories() {
+  return array(
+    array(
+      'name' => 'naver_login',
+      'title' => 'Naver',
+      'weight' => 5,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function naver_login_menu_alter(&$callbacks) {
+  $callbacks['user/%user_category/edit/naver_login']['page callback'] = 'naver_login_user_identities';
+  $callbacks['user/%user_category/edit/naver_login']['module'] = 'naver_login';
+  $callbacks['user/%user_category/edit/naver_login']['file'] = 'naver_login.pages.inc';
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function naver_login_block_info() {
+  $blocks['naver_login_block'] = array(
+    'info' => t('Naver Login'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function naver_login_block_view($delta = '') {
+  global $user;
+  $block = array();
+
+  switch ($delta) {
+    case 'naver_login_block':
+      if ($user->uid) {
+        return;
+      }
+      $block['subject'] = t('Naver Login');
+      $block['content'] = 'Hello! ' . l('Login', 'naver_login/auth/request', array('html' => TRUE));
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function naver_login_theme() {
+  return array(
+    'naver_login_user_picture_override' => array(
+      'variables' => array(
+        'fbuid' => NULL,
+        'account' => NULL,
+        'user_url' => NULL,
+        'size' => '',
+      ),
+      'file' => 'naver_login.pages.inc',
+    ),
+  );
+}
+
+/**
+ * Check if user already registered in the fbconnect_users table
+ *
+ * @param Int $fbuid
+ *   Naver user id
+ * @return Int $uid
+ */
+function naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id) {
+  if ($naver_userinfo_enc_id) {
+    $query = db_select('naver_login_users', 'nlu')
+        ->fields('nlu', array('drupal_user_index_no'))
+        ->condition('naver_enc_id', $naver_userinfo_enc_id, '=');
+    $user_registered = $query->execute()->fetchField();
+    if (!empty($user_registered)) {
+        return $user_registered;
+    }
+  }
+}
+
+/**
+ * Check the users table to see if the email is already in the drupal system
+ *  returns uid of user with the email.
+ */
+function naver_login_email_already_exist($email) {
+  $query = db_select('users', 'u');
+  $query->fields('u', array('uid'));
+  $query->condition('mail', $email, '=');
+  return $query->execute()->fetchField();
+}
+
+function naver_login_register_form_validate($form, &$form_state) {
+  if (!isset($_GET['state']) 
+    || !isset($_SESSION['naver_login']['naver_login_state_token'])  
+    || !isset($_SESSION[$_GET['state']]['user_profile']) 
+    || $_GET['state'] != $_SESSION['naver_login']['naver_login_state_token']
+    ) {
+
+    drupal_set_message(t('Your session has been expired. Please try Naver Login again.'), 'error');
+    drupal_goto('user');
+  }
+  
+}
+
+/**
+  *
+  after form validation passed
+*/
+
+function naver_login_register_form_submit($form, &$form_state) {
+  $user_profile_array = unserialize($_SESSION[$_GET['state']]['user_profile']);
+  
+  $naver_userinfo_email = $user_profile_array['response']['email'];
+    $naver_userinfo_nickname = $user_profile_array['response']['nickname'];
+    $naver_userinfo_enc_id = $user_profile_array['response']['enc_id'];
+    $naver_userinfo_profile_image = $user_profile_array['response']['profile_image'];
+    $naver_userinfo_age = $user_profile_array['response']['age'];
+    $naver_userinfo_birthday = $user_profile_array['response']['birthday'];
+    $naver_userinfo_gender = $user_profile_array['response']['gender'];
+    
+    $drupal_uid = naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id);
+    
+  // if already connected
+  if ($drupal_uid) {
+    drupal_set_message(t('Retrying registration. Your Naver account is already assigned to one account on our site.'), 'error');
+    watchdog('fbconnect', 'Error creating account for @naver_userinfo_enc_id', array('@naver_userinfo_enc_id' => $naver_userinfo_enc_id), WATCHDOG_ALERT);
+    drupal_goto();
+  }
+  
+  $user = $form_state['user'];
+  
+  if (!$user) {
+    drupal_set_message(t('Error saving user account.'), 'error');
+    drupal_goto();
+  }
+  
+
+  
+  naver_login_make_connection($user->uid, $naver_userinfo_enc_id);
+  
+  
+  $data['data']['naver_login_userinfo_email'] = $naver_userinfo_email;
+  $data['data']['naver_login_userinfo_nickname'] = $naver_userinfo_nickname;
+  $data['data']['naver_login_userinfo_enc_id'] = $naver_userinfo_enc_id;
+  $data['data']['naver_login_userinfo_profile_image'] = $naver_userinfo_profile_image;
+  $data['data']['naver_login_userinfo_age'] = $naver_userinfo_age;
+  $data['data']['naver_login_userinfo_birthday'] = $naver_userinfo_birthday;
+  $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
+  $user = user_save($user, $data);
+  
+  
+  
+  unset($_SESSION[$_GET['state']]);
+  unset($_SESSION['naver_login']['naver_login_state_token']);
+  
+  drupal_goto('user');
+}
+
+
+/**
+ * Stores user into table fbconnect.
+ */
+function naver_login_make_connection($uid, $naver_userinfo_enc_id) {
+
+  db_merge('naver_login_users')
+    ->key(array('naver_enc_id' => $naver_userinfo_enc_id))
+    ->fields(array(
+      'drupal_user_index_no' => $uid,
+      'connect_timestamp' => REQUEST_TIME,
+    ))
+    ->execute();
+
+  watchdog('naver_login', 'User has connected his Naver account (@naver_enc_id)', array('@naver_enc_id' => $naver_userinfo_enc_id), WATCHDOG_NOTICE, l(t('edit'), "user/$uid/edit/fbconnect")
+  );
+  return TRUE;
+}
+
+function naver_login_revoke_connection($drupal_user_index_no) {
+
+  db_delete('naver_login_users')
+    ->condition('drupal_user_index_no', $drupal_user_index_no)
+    ->execute();
+
+  //watchdog('naver_login', 'User has revoke his Naver account (@naver_uid)', array('@naver_uid' => $drupal_user_index_no), WATCHDOG_NOTICE, l(t('edit'), "user/$drupal_user_index_no/edit/fbconnect")
+  //);
+  
+  return TRUE;
+}
+
+
+/**
+ * Implements hook_user_view().
+ * Change the user profile picture to use the preferred fbconnect preset.
+ */
+function naver_login_user_view($account, $view_mode) {
+  
+   $account->content['user_picture']['#value'] = theme('user_picture', array('account' => $account));
+  
+}
+/**
+ * Our replacement for theme('user_picture', ...)
+ */
+function naver_login_theme_user_picture_override($variables) {
+    return 'aa';
+}
+
+
+/**
+ * Implements hook_user_cancel().
+ */
+function naver_login_user_cancel($edit, $account, $method) {
+  naver_login_revoke_connection($account->uid);  
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function naver_login_user_delete($account) {
+  naver_login_revoke_connection($account->uid);
+}
+

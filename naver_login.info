@@ -1,0 +1,5 @@
+name = Naver Login
+description = Allows users to connect with Naver account.
+package = Authentication
+core = 7.x
+configure = admin/config/people/naver_login
