@@ -386,7 +386,6 @@ function naver_login_user_settings_form($form, $form_state, $account) {
  * Callback Connect.
  */
 function naver_login_request_connect($form, &$form_state) {
-  //$form_state['rebuild'] = TRUE;
   $_SESSION['naver_login_loggedin_user_want_connect'] = TRUE;
   drupal_goto('naver_login/auth/request');
 }
