@@ -120,6 +120,7 @@ function naver_login_theme() {
  *
  * @param int $naver_userinfo_enc_id
  *   Naver login id.
+ *
  * @return int
  *   true IF correct.
  */
@@ -137,6 +138,7 @@ function naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id) {
 
 /**
  * Check the users table to see if the email is already in the drupal system.
+ *
  * Returns uid of user with the email.
  */
 function naver_login_email_already_exist($email) {
@@ -148,6 +150,7 @@ function naver_login_email_already_exist($email) {
 
 /**
  * Check the users table to see if the email is already in the drupal system.
+ *
  * Returns uid of user with the email.
  */
 function naver_login_register_form_validate($form, &$form_state) {
