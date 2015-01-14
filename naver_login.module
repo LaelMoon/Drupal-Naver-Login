@@ -241,9 +241,6 @@ function naver_login_revoke_connection($drupal_user_index_no) {
     ->condition('drupal_user_index_no', $drupal_user_index_no)
     ->execute();
 
-  //watchdog('naver_login', 'User has revoke his Naver account (@naver_uid)', array('@naver_uid' => $drupal_user_index_no), WATCHDOG_NOTICE, l(t('edit'), "user/$drupal_user_index_no/edit/fbconnect")
-  //);
-  
   return TRUE;
 }
 

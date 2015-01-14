@@ -50,7 +50,6 @@ function naver_login_auth_request() {
 function naver_login_auth_retrieve() {
   $naver_login_client_id = NULL;
   $naver_login_client_secret = NULL;
-  $naver_login_request_uri = variable_get('naver_login_callback_uri', NULL);
 
   if (user_is_logged_in() && !isset($_SESSION['naver_login_loggedin_user_want_connect']) ){
     drupal_goto();
@@ -59,7 +58,6 @@ function naver_login_auth_retrieve() {
   if ((bool) variable_get('naver_login_client_id', FALSE) && (bool) variable_get('naver_login_client_secret', FALSE)) {
     $naver_login_client_id = variable_get('naver_login_client_id', NULL);
     $naver_login_client_secret = variable_get('naver_login_client_secret', NULL);
-    $naver_login_request_uri = variable_get('naver_login_callback_uri', NULL);
   }
   else{
     drupal_goto();
@@ -259,9 +257,8 @@ function naver_login_auth_register($form, &$form_state) {
   }
   else{
     // registration
-    
     $form = drupal_retrieve_form('user_register_form', $form_state);
-  
+
     // prevent users registration if admin has blocked free registration
     $user_reg_mode = variable_get('user_register', 1);
     if ($user_reg_mode == 0) {
