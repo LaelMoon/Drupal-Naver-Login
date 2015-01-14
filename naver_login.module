@@ -118,10 +118,10 @@ function naver_login_theme() {
 /**
  * Check if user already registered in the fbconnect_users table.
  *
- * @param Int $naver_userinfo_enc_id
- * Naver login id
- * @return Int $uid
- * true IF correct
+ * @param int $naver_userinfo_enc_id
+ *   Naver login id.
+ * @return int
+ *   true IF correct.
  */
 function naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id) {
   if ($naver_userinfo_enc_id) {
@@ -136,8 +136,8 @@ function naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id) {
 }
 
 /**
- * Check the users table to see if the email is already in the drupal system
- * returns uid of user with the email.
+ * Check the users table to see if the email is already in the drupal system.
+ * Returns uid of user with the email.
  */
 function naver_login_email_already_exist($email) {
   $query = db_select('users', 'u');
@@ -147,8 +147,8 @@ function naver_login_email_already_exist($email) {
 }
 
 /**
- * Check the users table to see if the email is already in the drupal system
- * returns uid of user with the email.
+ * Check the users table to see if the email is already in the drupal system.
+ * Returns uid of user with the email.
  */
 function naver_login_register_form_validate($form, &$form_state) {
   if (!isset($_GET['state'])
