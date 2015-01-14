@@ -103,7 +103,7 @@ function naver_login_auth_retrieve() {
 
   $curl_results_obj = json_decode($curl_results);
 
-  if($curl_results_obj == NULL || isset($curl_results_obj->error)) {
+  if ($curl_results_obj == NULL || isset($curl_results_obj->error)) {
     // Error.
     drupal_goto();
   }
@@ -231,28 +231,32 @@ function naver_login_auth_register($form, &$form_state) {
     exit;
   }
 
-  // if already connected
+  // If already connected,
   if ($drupal_uid) {
-  // User already registered Naver account to site, log them in
+    // User already registered Naver account to site, log them in.
     $form_state['uid'] = $drupal_uid;
     user_login_submit($form, $form_state);
-    drupal_goto('user');//need to redirect destination
+    
+    // Need to redirect destination.
+    drupal_goto('user');
   }
-  elseif (naver_login_email_already_exist($naver_userinfo_email)){
-    // The user was not found in the users table, but the
+  elseif (naver_login_email_already_exist($naver_userinfo_email)) {
+    // The user was not found in the users table, but the.
     // Email from Naver might already have an account.
     // Redirect user to the login page with a message..
     drupal_set_message(t('This email address is already registered to an account. Please log in to this account with the username and password provided during registration'));
-    $options = array('query' => array(
-      'naver_login' => 'true'
-    ));
+    $options = array(
+      'query' => array(
+        'naver_login' => 'true',
+      ),
+    );
     drupal_goto('user/login', $options);
   }
   else {
-    // Registration
+    // Registration.
     $form = drupal_retrieve_form('user_register_form', $form_state);
   
-    // Prevent users registration if admin has blocked free registration
+    // Prevent users registration if admin has blocked free registration.
     $user_reg_mode = variable_get('user_register', 1);
     if ($user_reg_mode == 0) {
       drupal_access_denied();
@@ -281,7 +285,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
 
   $is_admin = FALSE;
 
-  if( in_array('administrator', $user->roles) ) {
+  if(in_array('administrator', $user->roles)) {
     $is_admin = TRUE;
   }
 
@@ -370,7 +374,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     $form['naver_login_connect']['profile'] = array(
       '#type' => 'submit',
       '#value' => t('Connect'),
-      '#disabled' => $is_admin?TRUE:FALSE,
+      '#disabled' => $is_admin ? TRUE : FALSE,
       '#validate' => array('naver_login_request_connect'),
     );
   }
@@ -382,9 +386,9 @@ function naver_login_user_settings_form($form, $form_state, $account) {
  *  Callback Connect.
  */
 function naver_login_request_connect($form, &$form_state) {
-    //$form_state['rebuild'] = TRUE;
-    $_SESSION['naver_login_loggedin_user_want_connect'] = TRUE;
-    drupal_goto('naver_login/auth/request');
+  //$form_state['rebuild'] = TRUE;
+  $_SESSION['naver_login_loggedin_user_want_connect'] = TRUE;
+  drupal_goto('naver_login/auth/request');
 }
 
 /**
