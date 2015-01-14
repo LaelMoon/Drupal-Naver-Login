@@ -6,13 +6,11 @@
  */
 
 /**
- * Menu callback.
- * Called when user perform Naver registration
+ * Generate naver login service request context.
+ * 
  */
 function naver_login_auth_request() {
-  
-  //print_r(user_load(38));exit;
-  
+
   $naver_login_client_id = NULL;
   $naver_login_client_secret = NULL;
   $naver_login_request_uri = variable_get('naver_login_callback_uri', NULL);
@@ -40,15 +38,17 @@ function naver_login_auth_request() {
     'state' => $naver_login_state_token,
     'redirect_uri' => $naver_login_request_uri,    
   );
-  
+
   $naver_login_service_request_uri = 'https://nid.naver.com/oauth2.0/authorize?' . http_build_query($http_params);
-  
-  // echo $naver_login_service_request_uri;
 
   header('Location: ' . $naver_login_service_request_uri);
 
 }
 
+/**
+ * retrieve naver login service response context.
+ * 
+ */
 function naver_login_auth_retrieve() {
   $naver_login_client_id = NULL;
   $naver_login_client_secret = NULL;
@@ -66,21 +66,21 @@ function naver_login_auth_retrieve() {
   else{
     drupal_goto();
   }
-  
+
   if (!isset($_GET['code']) || !isset($_GET['state']) || !isset($_SESSION['naver_login']['naver_login_state_token']) ) {
     drupal_goto();
   }
-  
+
   if ($_GET['state'] != $_SESSION['naver_login']['naver_login_state_token']) {
     // if invalid -> unset token and goto main page.
     unset($_SESSION['naver_login']['naver_login_state_token']);
     drupal_goto();
   }
-  
+
   /**
     * Step 1. Retrieve ACCESS TOKEN using $_GET['code'] value.
     */
-    
+
     $http_params = array(
       'grant_type' => 'authorization_code',
       'client_id' => $naver_login_client_id,
@@ -88,7 +88,7 @@ function naver_login_auth_retrieve() {
       'code' => $_GET['code'],
       'state' => $_SESSION['naver_login']['naver_login_state_token'],
     );
-  
+
     $curl_opt = array(
       CURLOPT_URL => 'https://nid.naver.com/oauth2.0/token',
       CURLOPT_POST => TRUE,
@@ -102,12 +102,12 @@ function naver_login_auth_retrieve() {
         "Accept: */*",
       ),
     );
-    
+
     $curl_connection = curl_init();
     curl_setopt_array($curl_connection, $curl_opt);
     $curl_results = curl_exec($curl_connection);
     curl_close($curl_connection);
-    
+
     $curl_results_obj= json_decode($curl_results);
 
     if($curl_results_obj == NULL || isset($curl_results_obj->error)){
@@ -155,9 +155,6 @@ function naver_login_auth_retrieve() {
       drupal_goto();
     }
 
-
-    
-
   /**
     * Step 3. Processing user profile.
     */
@@ -172,132 +169,121 @@ function naver_login_auth_retrieve() {
         ),
       )
     );
-    
 
 }
 
-
+/**
+ * naver login service register page.
+ * 
+ */
 function naver_login_auth_register($form, &$form_state) {
-  
+
   drupal_set_title(t('Sign Up with Naver Account'));
-  
+
   if (!isset($_GET['state']) 
     || !isset($_SESSION['naver_login']['naver_login_state_token'])  
     || !isset($_SESSION[$_GET['state']]['user_profile']) ) {
     drupal_goto();
   }
-  
+
   if ($_GET['state'] != $_SESSION['naver_login']['naver_login_state_token']) {
     // if invalid -> unset token and goto main page.
     unset($_SESSION['naver_login']['naver_login_state_token']);
     drupal_goto();
   }
-  
-  $user_profile_array = unserialize($_SESSION[$_GET['state']]['user_profile']);
-  
-  //print_r($user_profile_array);
-  //die('you are here');
-    $naver_userinfo_email = $user_profile_array['response']['email'];
-    $naver_userinfo_nickname = $user_profile_array['response']['nickname'];
-    $naver_userinfo_enc_id = $user_profile_array['response']['enc_id'];
-    $naver_userinfo_profile_image = $user_profile_array['response']['profile_image'];
-    $naver_userinfo_age = $user_profile_array['response']['age'];
-    $naver_userinfo_birthday = $user_profile_array['response']['birthday'];
-    $naver_userinfo_gender = $user_profile_array['response']['gender'];
-    
-    $drupal_uid = naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id);
-    
-    if($drupal_uid){
-      $exist_user = user_load($drupal_uid);
-     //return; 
-      if(!$exist_user) {
-        //prevent conflict condition
-        naver_login_revoke_connection($drupal_uid);
-        $drupal_uid = NULL;
-        $exist_user = NULL;
-        //return;
-      }
-    }
-      
-    
-    
-    if( user_is_logged_in() && isset($_SESSION['naver_login_loggedin_user_want_connect']) ) {
-      global $user;
-      
-      if($user->mail == $naver_userinfo_email){
-        
-        naver_login_make_connection($user->uid, $naver_userinfo_enc_id);
-  
-        
-        $data['data']['naver_login_userinfo_email'] = $naver_userinfo_email;
-        $data['data']['naver_login_userinfo_nickname'] = $naver_userinfo_nickname;
-        $data['data']['naver_login_userinfo_enc_id'] = $naver_userinfo_enc_id;
-        $data['data']['naver_login_userinfo_profile_image'] = $naver_userinfo_profile_image;
-        $data['data']['naver_login_userinfo_age'] = $naver_userinfo_age;
-        $data['data']['naver_login_userinfo_birthday'] = $naver_userinfo_birthday;
-        $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
-        $user = user_save($user, $data);
 
-        
-      }
-      else{
-        drupal_set_message(t('Your account email is differ from Naver account. connection failed.'), 'error');
-      }
-      
-      unset($_SESSION['naver_login_loggedin_user_want_connect']);
-      drupal_goto('user/edit/naver_login');
-      exit;
-    }
+  $user_profile_array = unserialize($_SESSION[$_GET['state']]['user_profile']);
+
+  $naver_userinfo_email = $user_profile_array['response']['email'];
+  $naver_userinfo_nickname = $user_profile_array['response']['nickname'];
+  $naver_userinfo_enc_id = $user_profile_array['response']['enc_id'];
+  $naver_userinfo_profile_image = $user_profile_array['response']['profile_image'];
+  $naver_userinfo_age = $user_profile_array['response']['age'];
+  $naver_userinfo_birthday = $user_profile_array['response']['birthday'];
+  $naver_userinfo_gender = $user_profile_array['response']['gender'];
     
-    // if already connected
-    if ($drupal_uid) {
-    // User already registered Naver account to site, log them in
+  $drupal_uid = naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id);
     
-      
-            
-      $form_state['uid'] = $drupal_uid;
-      user_login_submit($form, $form_state);
-      //echo "login";
-      drupal_goto('user');//need to redirect destination
-      
+  if($drupal_uid){
+    $exist_user = user_load($drupal_uid);
+
+    if(!$exist_user) {
+      naver_login_revoke_connection($drupal_uid);
+      $drupal_uid = NULL;
+      $exist_user = NULL;
     }
-    elseif (naver_login_email_already_exist($naver_userinfo_email)){
-      // The user was not found in the users table, but the
-      // email from Naver might already have an account.
-      // Redirect user to the login page with a message..
-      drupal_set_message(t('This email address is already registered to an account. Please log in to this account with the username and password provided during registration'));
-      $options = array('query' => array(
-        'naver_login' => 'true'
-      ));
-      drupal_goto('user/login', $options);
+  }
+      
+    
+    
+  if( user_is_logged_in() && isset($_SESSION['naver_login_loggedin_user_want_connect']) ) {
+    global $user;
+    
+    if($user->mail == $naver_userinfo_email){
+
+      naver_login_make_connection($user->uid, $naver_userinfo_enc_id);
+
+      $data['data']['naver_login_userinfo_email'] = $naver_userinfo_email;
+      $data['data']['naver_login_userinfo_nickname'] = $naver_userinfo_nickname;
+      $data['data']['naver_login_userinfo_enc_id'] = $naver_userinfo_enc_id;
+      $data['data']['naver_login_userinfo_profile_image'] = $naver_userinfo_profile_image;
+      $data['data']['naver_login_userinfo_age'] = $naver_userinfo_age;
+      $data['data']['naver_login_userinfo_birthday'] = $naver_userinfo_birthday;
+      $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
+      $user = user_save($user, $data);
+
     }
     else{
-      // registration
-      
-      $form = drupal_retrieve_form('user_register_form', $form_state);
-    
-      // prevent users registration if admin has blocked free registration
-      $user_reg_mode = variable_get('user_register', 1);
-      if ($user_reg_mode == 0) {
-        drupal_access_denied();
-        return;
-      }
-
-      $form['account']['name']['#value'] = empty($form_state['input']['name']) ? $naver_userinfo_nickname : $form_state['input']['name'];
-      $form['account']['mail']['#value'] = empty($form_state['input']['mail']) ? $naver_userinfo_email : $form_state['input']['mail'];
-    
-            
-      $form['#validate'][] = 'naver_login_register_form_validate';
-      $form['#submit'][] = 'naver_login_register_form_submit';
-      
-      return $form;
-
-
+      drupal_set_message(t('Your account email is differ from Naver account. connection failed.'), 'error');
     }
 
+    unset($_SESSION['naver_login_loggedin_user_want_connect']);
+    drupal_goto('user/edit/naver_login');
+    exit;
+  }
+
+  // if already connected
+  if ($drupal_uid) {
+  // User already registered Naver account to site, log them in     
+    $form_state['uid'] = $drupal_uid;
+    user_login_submit($form, $form_state);
+    drupal_goto('user');//need to redirect destination
+  }
+  elseif (naver_login_email_already_exist($naver_userinfo_email)){
+    // The user was not found in the users table, but the
+    // email from Naver might already have an account.
+    // Redirect user to the login page with a message..
+    drupal_set_message(t('This email address is already registered to an account. Please log in to this account with the username and password provided during registration'));
+    $options = array('query' => array(
+      'naver_login' => 'true'
+    ));
+    drupal_goto('user/login', $options);
+  }
+  else{
+    // registration
+    
+    $form = drupal_retrieve_form('user_register_form', $form_state);
+  
+    // prevent users registration if admin has blocked free registration
+    $user_reg_mode = variable_get('user_register', 1);
+    if ($user_reg_mode == 0) {
+      drupal_access_denied();
+      return;
+    }
+
+    $form['account']['name']['#value'] = empty($form_state['input']['name']) ? $naver_userinfo_nickname : $form_state['input']['name'];
+    $form['account']['mail']['#value'] = empty($form_state['input']['mail']) ? $naver_userinfo_email : $form_state['input']['mail'];
+  
+          
+    $form['#validate'][] = 'naver_login_register_form_validate';
+    $form['#submit'][] = 'naver_login_register_form_submit';
+    
+    return $form;
+
+
+  }
+
 }
-
-
 
 /**
  *  This form allows the user to manage their Naver connect settings.
@@ -307,20 +293,18 @@ function naver_login_auth_register($form, &$form_state) {
 function naver_login_user_settings_form($form, $form_state, $account) {
 
   global $user;
-  
+
   $is_admin = FALSE;
 
   if( in_array('administrator', $user->roles) ) {
     $is_admin = TRUE;
   }
-  
+
   $form['naver_login'] = array(
     '#title' => t('Naver Login info (ADMIN VIEW)'),
     '#type' => 'fieldset',
     '#description' => t('The data received from Naver.<br />Only admin can view this info.<br />Data will remove when Naver account disconnect. (also drupal user account cancelation)<br /><br />'),
     '#access' => $is_admin,
-    //'#collapsed' => TRUE,
-    //'#collapsible' => TRUE,
   );
 
   $form['naver_login']['naver_login_userinfo_enc_id'] = array(
@@ -330,7 +314,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );  
-  
+
   $form['naver_login']['naver_login_userinfo_email'] = array(
     '#type' => 'textfield',
     '#title' => t('User Email'),
@@ -338,7 +322,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
-  
+
   $form['naver_login']['naver_login_userinfo_nickname'] = array(
     '#type' => 'textfield',
     '#title' => t('User Nickname'),
@@ -346,7 +330,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
-  
+
   $form['naver_login']['naver_login_userinfo_profile_image'] = array(
     '#type' => 'textfield',
     '#title' => t('User Profile Image'),
@@ -370,7 +354,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
-  
+
   $form['naver_login']['naver_login_userinfo_gender'] = array(
     '#type' => 'textfield',
     '#title' => t('User Gender'),
@@ -378,13 +362,6 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
-
-/*
-  $form['account'] = array(
-    '#type' => 'value',
-    '#value' => $account,
-  );
-*/
 
   $form['account'] = array(
     '#type' => 'value',
@@ -402,7 +379,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   if(isset($account->data['naver_login_userinfo_enc_id']) && $account->data['naver_login_userinfo_enc_id'] != ''){
     $form['naver_login_connect']['unlink'] = array(
       '#type' => 'submit',
-      '#value' => t('Unlink'),
+      '#value' => t('Disconnect'),
       '#validate' => array('naver_login_request_revoke'),
     );
   }
@@ -415,47 +392,40 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     );
   }
 
-
-  
-
   return $form;
 }
 
-
+/**
+ *  Callback Connect
+ */
 function naver_login_request_connect($form, &$form_state) {
     //$form_state['rebuild'] = TRUE;
     $_SESSION['naver_login_loggedin_user_want_connect'] = TRUE;
     drupal_goto('naver_login/auth/request');
 }
 
+/**
+ *  Callback Disconnect
+ */
 function naver_login_request_revoke($form, &$form_state) {
-    //$form_state['rebuild'] = TRUE;
-    //$_SESSION['naver_login_loggedin_user_want_connect'] = TRUE;
-    //drupal_goto('naver_login/auth/request');
-    
-    $account = $form_state['values']['account'];
-    
-        naver_login_revoke_connection($account->uid);
-  
-        
-        $data['data']['naver_login_userinfo_email'] = NULL;
-        $data['data']['naver_login_userinfo_nickname'] = NULL;
-        $data['data']['naver_login_userinfo_enc_id'] = NULL;
-        $data['data']['naver_login_userinfo_profile_image'] = NULL;
-        $data['data']['naver_login_userinfo_age'] = NULL;
-        $data['data']['naver_login_userinfo_birthday'] = NULL;
-        $data['data']['naver_login_userinfo_gender'] = NULL;
-        
-        user_save($account, $data);
-    
-    
+  $account = $form_state['values']['account'];
+
+  naver_login_revoke_connection($account->uid);
+
+  $data['data']['naver_login_userinfo_email'] = NULL;
+  $data['data']['naver_login_userinfo_nickname'] = NULL;
+  $data['data']['naver_login_userinfo_enc_id'] = NULL;
+  $data['data']['naver_login_userinfo_profile_image'] = NULL;
+  $data['data']['naver_login_userinfo_age'] = NULL;
+  $data['data']['naver_login_userinfo_birthday'] = NULL;
+  $data['data']['naver_login_userinfo_gender'] = NULL;
+
+  user_save($account, $data);
 }
 
-
 /**
- * Menu callback fbconnect identities
+ * Menu callback identities
  */
 function naver_login_user_identities($form_id, $account) {
-  //print_r($account);
   return drupal_get_form('naver_login_user_settings_form', $account);
 }
