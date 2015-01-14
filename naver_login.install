@@ -66,11 +66,11 @@ function naver_login_schema() {
 }
 
 /**
-* Implement hook_enable()
-*/
+ * Implement hook_enable().
+ */
 function naver_login_enable() {
-  //Check if table exists, if not install the schema.
-  if(db_table_exists('naver_login_users') == FALSE) {
+  // Check if table exists, if not install the schema.
+  if (db_table_exists('naver_login_users') == FALSE) {
     drupal_install_schema('naver_login');
   }
 }
