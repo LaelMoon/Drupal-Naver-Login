@@ -92,7 +92,7 @@ function naver_login_block_view($delta = '') {
         return;
       }
       $block['subject'] = t('Naver Login');
-      $block['content'] = t('Hello! ') . l(t('Login'), t('naver_login/auth/request'), array('html' => TRUE));
+      $block['content'] = t('Hello!') . l(t('Login'), t('naver_login/auth/request'), array('html' => TRUE));
       break;
   }
   return $block;
@@ -119,7 +119,9 @@ function naver_login_theme() {
  * Check if user already registered in the fbconnect_users table.
  *
  * @param Int $naver_userinfo_enc_id
+ * Naver login id
  * @return Int $uid
+ * true IF correct
  */
 function naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id) {
   if ($naver_userinfo_enc_id) {
@@ -135,7 +137,7 @@ function naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id) {
 
 /**
  * Check the users table to see if the email is already in the drupal system
- *  returns uid of user with the email.
+ * returns uid of user with the email.
  */
 function naver_login_email_already_exist($email) {
   $query = db_select('users', 'u');
@@ -146,7 +148,7 @@ function naver_login_email_already_exist($email) {
 
 /**
  * Check the users table to see if the email is already in the drupal system
- *  returns uid of user with the email.
+ * returns uid of user with the email.
  */
 function naver_login_register_form_validate($form, &$form_state) {
   if (!isset($_GET['state'])
@@ -177,7 +179,7 @@ function naver_login_register_form_submit($form, &$form_state) {
 
   $drupal_uid = naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id);
 
-  // If already connected
+  // If already connected.
   if ($drupal_uid) {
     drupal_set_message(t('Retrying registration. Your Naver account is already assigned to one account on our site.'), 'error');
     watchdog('fbconnect', 'Error creating account for @naver_userinfo_enc_id', array('@naver_userinfo_enc_id' => $naver_userinfo_enc_id), WATCHDOG_ALERT);
@@ -226,6 +228,9 @@ function naver_login_make_connection($uid, $naver_userinfo_enc_id) {
   return TRUE;
 }
 
+/**
+ * Revoke user into table fbconnect.
+ */
 function naver_login_revoke_connection($drupal_user_index_no) {
 
   db_delete('naver_login_users')
