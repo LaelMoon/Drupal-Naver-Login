@@ -300,7 +300,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   $form['naver_login']['naver_login_userinfo_enc_id'] = array(
     '#type' => 'textfield',
     '#title' => t('User Encrypted ID'),
-    '#default_value' => isset($account->data['naver_login_userinfo_enc_id'])?$account->data['naver_login_userinfo_enc_id']:'',
+    '#default_value' => isset($account->data['naver_login_userinfo_enc_id']) ? $account->data['naver_login_userinfo_enc_id'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );  
@@ -308,7 +308,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   $form['naver_login']['naver_login_userinfo_email'] = array(
     '#type' => 'textfield',
     '#title' => t('User Email'),
-    '#default_value' => isset($account->data['naver_login_userinfo_email'])?$account->data['naver_login_userinfo_email']:'',
+    '#default_value' => isset($account->data['naver_login_userinfo_email']) ? $account->data['naver_login_userinfo_email'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
@@ -316,7 +316,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   $form['naver_login']['naver_login_userinfo_nickname'] = array(
     '#type' => 'textfield',
     '#title' => t('User Nickname'),
-    '#default_value' => isset($account->data['naver_login_userinfo_nickname'])?$account->data['naver_login_userinfo_nickname']:'',
+    '#default_value' => isset($account->data['naver_login_userinfo_nickname']) ? $account->data['naver_login_userinfo_nickname'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
@@ -324,7 +324,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   $form['naver_login']['naver_login_userinfo_profile_image'] = array(
     '#type' => 'textfield',
     '#title' => t('User Profile Image'),
-    '#default_value' => isset($account->data['naver_login_userinfo_profile_image'])?$account->data['naver_login_userinfo_profile_image']:'',
+    '#default_value' => isset($account->data['naver_login_userinfo_profile_image']) ? $account->data['naver_login_userinfo_profile_image'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
@@ -332,7 +332,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   $form['naver_login']['naver_login_userinfo_age'] = array(
     '#type' => 'textfield',
     '#title' => t('User Age'),
-    '#default_value' => isset($account->data['naver_login_userinfo_age'])?$account->data['naver_login_userinfo_age']:'',
+    '#default_value' => isset($account->data['naver_login_userinfo_age']) ? $account->data['naver_login_userinfo_age'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
@@ -340,7 +340,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   $form['naver_login']['naver_login_userinfo_birthday'] = array(
     '#type' => 'textfield',
     '#title' => t('User Birthday'),
-    '#default_value' => isset($account->data['naver_login_userinfo_birthday'])?$account->data['naver_login_userinfo_birthday']:'',
+    '#default_value' => isset($account->data['naver_login_userinfo_birthday']) ? $account->data['naver_login_userinfo_birthday'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
@@ -348,7 +348,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   $form['naver_login']['naver_login_userinfo_gender'] = array(
     '#type' => 'textfield',
     '#title' => t('User Gender'),
-    '#default_value' => isset($account->data['naver_login_userinfo_gender'])?$account->data['naver_login_userinfo_gender']:'',
+    '#default_value' => isset($account->data['naver_login_userinfo_gender']) ? $account->data['naver_login_userinfo_gender'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
@@ -361,7 +361,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   $form['naver_login_connect'] = array(
     '#title' => t('Naver account connect (auto login)'),
     '#type' => 'fieldset',
-    '#description' => $is_admin?t('Admin only can do unlink function.'):'',
+    '#description' => $is_admin ? t('Admin only can do unlink function.') : '',
     //'#collapsed' => TRUE,
     //'#collapsible' => TRUE,
   );
