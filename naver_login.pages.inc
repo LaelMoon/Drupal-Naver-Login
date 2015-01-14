@@ -236,7 +236,7 @@ function naver_login_auth_register($form, &$form_state) {
     // User already registered Naver account to site, log them in.
     $form_state['uid'] = $drupal_uid;
     user_login_submit($form, $form_state);
-    
+
     // Need to redirect destination.
     drupal_goto('user');
   }
@@ -255,7 +255,7 @@ function naver_login_auth_register($form, &$form_state) {
   else {
     // Registration.
     $form = drupal_retrieve_form('user_register_form', $form_state);
-  
+
     // Prevent users registration if admin has blocked free registration.
     $user_reg_mode = variable_get('user_register', 1);
     if ($user_reg_mode == 0) {
@@ -275,9 +275,9 @@ function naver_login_auth_register($form, &$form_state) {
 }
 
 /**
- *  This form allows the user to manage their Naver connect settings.
+ * This form allows the user to manage their Naver connect settings.
  *
- *  Some options are visible only if Naver session is active.
+ * Some options are visible only if Naver session is active.
  */
 function naver_login_user_settings_form($form, $form_state, $account) {
 
@@ -285,7 +285,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
 
   $is_admin = FALSE;
 
-  if(in_array('administrator', $user->roles)) {
+  if (in_array('administrator', $user->roles)) {
     $is_admin = TRUE;
   }
 
@@ -363,14 +363,14 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     '#description' => $is_admin ? t('Admin only can do unlink function.') : '',
   );
 
-  if(isset($account->data['naver_login_userinfo_enc_id']) && $account->data['naver_login_userinfo_enc_id'] != ''){
+  if (isset($account->data['naver_login_userinfo_enc_id']) && $account->data['naver_login_userinfo_enc_id'] != '') {
     $form['naver_login_connect']['unlink'] = array(
       '#type' => 'submit',
       '#value' => t('Disconnect'),
       '#validate' => array('naver_login_request_revoke'),
     );
   }
-  else{
+  else {
     $form['naver_login_connect']['profile'] = array(
       '#type' => 'submit',
       '#value' => t('Connect'),
@@ -383,7 +383,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
 }
 
 /**
- *  Callback Connect.
+ * Callback Connect.
  */
 function naver_login_request_connect($form, &$form_state) {
   //$form_state['rebuild'] = TRUE;
@@ -392,7 +392,7 @@ function naver_login_request_connect($form, &$form_state) {
 }
 
 /**
- *  Callback Disconnect.
+ * Callback Disconnect.
  */
 function naver_login_request_revoke($form, &$form_state) {
   $account = $form_state['values']['account'];
