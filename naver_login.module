@@ -116,7 +116,7 @@ function naver_login_theme() {
 }
 
 /**
- * Check if user already registered in the fbconnect_users table.
+ * Check if user already registered in the naver_login_users table.
  *
  * @param int $naver_userinfo_enc_id
  *   Naver login id.
@@ -149,9 +149,7 @@ function naver_login_email_already_exist($email) {
 }
 
 /**
- * Check the users table to see if the email is already in the drupal system.
- *
- * Returns uid of user with the email.
+ * Check Auth session valid or Not.
  */
 function naver_login_register_form_validate($form, &$form_state) {
   if (!isset($_GET['state'])
@@ -185,7 +183,7 @@ function naver_login_register_form_submit($form, &$form_state) {
   // If already connected.
   if ($drupal_uid) {
     drupal_set_message(t('Retrying registration. Your Naver account is already assigned to one account on our site.'), 'error');
-    watchdog('fbconnect', 'Error creating account for @naver_userinfo_enc_id', array('@naver_userinfo_enc_id' => $naver_userinfo_enc_id), WATCHDOG_ALERT);
+    watchdog('naver_login', 'Error creating account for @naver_userinfo_enc_id', array('@naver_userinfo_enc_id' => $naver_userinfo_enc_id), WATCHDOG_ALERT);
     drupal_goto();
   }
 
@@ -214,7 +212,7 @@ function naver_login_register_form_submit($form, &$form_state) {
 }
 
 /**
- * Stores user into table fbconnect.
+ * Stores user into table naver_login_users.
  */
 function naver_login_make_connection($uid, $naver_userinfo_enc_id) {
 
@@ -226,13 +224,13 @@ function naver_login_make_connection($uid, $naver_userinfo_enc_id) {
     ))
     ->execute();
 
-  watchdog('naver_login', 'User has connected his Naver account (@naver_enc_id)', array('@naver_enc_id' => $naver_userinfo_enc_id), WATCHDOG_NOTICE, l(t('edit'), "user/$uid/edit/fbconnect")
+  watchdog('naver_login', 'User has connected his Naver account (@naver_enc_id)', array('@naver_enc_id' => $naver_userinfo_enc_id), WATCHDOG_NOTICE, l(t('edit'), "user/{$uid}/edit/naver_login")
   );
   return TRUE;
 }
 
 /**
- * Revoke user into table fbconnect.
+ * Revoke user into table naver_login_users.
  */
 function naver_login_revoke_connection($drupal_user_index_no) {
 

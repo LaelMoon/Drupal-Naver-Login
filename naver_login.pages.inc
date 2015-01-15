@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Provide syndication pages for the module.
+ * Provide Naver login auth request page, Naver login auth Callback page, User Registration page, User Account settings form page.
  */
 
 /**
- * Generate naver login service request context.
+ * Generate Naver login auth request.
  */
 function naver_login_auth_request() {
 
@@ -42,7 +42,7 @@ function naver_login_auth_request() {
 }
 
 /**
- * Retrieve naver login service response context.
+ * Callback - Retrieve Naver login Auth context.
  */
 function naver_login_auth_retrieve() {
   $naver_login_client_id = NULL;
@@ -211,8 +211,7 @@ function naver_login_auth_retrieve() {
     // The user was not found in the users table, but the.
     // Email from Naver might already have an account.
     $account_info = user_load($account_id);
-    //print_r($account_info);
-    //exit;
+    
     // Redirect user to the login page with a message..
     drupal_set_message(t('This email address is already registered to an account. <br />You can connect in user settings form.<br />Account Username : @accountID', array('@accountID' => $account_info->name)));
     $options = array(
@@ -238,7 +237,7 @@ function naver_login_auth_retrieve() {
 }
 
 /**
- * Naver login service register page.
+ * Custom User Registration page.
  */
 function naver_login_auth_register($form, &$form_state) {
 
@@ -289,9 +288,9 @@ function naver_login_auth_register($form, &$form_state) {
 }
 
 /**
- * This form allows the user to manage their Naver connect settings.
+ * This form allows the user to manage their Naver Account Connection.
  *
- * Some options are visible only if Naver session is active.
+ * Only admin can view account's Auth details.
  */
 function naver_login_user_settings_form($form, $form_state, $account) {
 
@@ -432,5 +431,6 @@ function naver_login_request_revoke($form, &$form_state) {
  * Menu callback identities.
  */
 function naver_login_user_identities($form_id, $account) {
+  var_dump($form_id);
   return drupal_get_form('naver_login_user_settings_form', $account);
 }
