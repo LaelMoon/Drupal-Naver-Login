@@ -370,7 +370,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     '#type' => 'value',
     '#value' => $account,
   );
-  
+
   $is_account_connected = FALSE;
   if (isset($account->data['naver_login_userinfo_enc_id']) && $account->data['naver_login_userinfo_enc_id'] != '') {
     $is_account_connected = TRUE;
