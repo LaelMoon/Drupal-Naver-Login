@@ -92,7 +92,7 @@ function naver_login_block_view($delta = '') {
         return;
       }
       $block['subject'] = t('Naver Login');
-      $block['content'] = t('Hello!') . l(t('Login'), t('naver_login/auth/request'), array('html' => TRUE));
+      $block['content'] = t('Login to this site using your Naver credentials. ') . l(t('Login'), t('naver_login/auth/request'), array('html' => TRUE));
       break;
   }
   return $block;

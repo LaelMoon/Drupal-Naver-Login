@@ -431,6 +431,5 @@ function naver_login_request_revoke($form, &$form_state) {
  * Menu callback identities.
  */
 function naver_login_user_identities($form_id, $account) {
-  var_dump($form_id);
   return drupal_get_form('naver_login_user_settings_form', $account);
 }
