@@ -2,7 +2,10 @@
 
 /**
  * @file
- * Provide Naver login auth request page, Naver login auth Callback page, User Registration page, User Account settings form page.
+ * Provide Naver login auth request page,
+ * Naver login auth Callback page,
+ * User Registration page,
+ * User Account settings form page.
  */
 
 /**
@@ -202,7 +205,7 @@ function naver_login_auth_retrieve() {
   if ($drupal_uid) {
     // User already registered Naver account to site, log them in.
     $form_state['uid'] = $drupal_uid;
-    user_login_submit($form, $form_state);
+    user_login_submit(array(), $form_state);
 
     // Need to redirect destination.
     drupal_goto('user');
@@ -211,7 +214,7 @@ function naver_login_auth_retrieve() {
     // The user was not found in the users table, but the.
     // Email from Naver might already have an account.
     $account_info = user_load($account_id);
-    
+
     // Redirect user to the login page with a message..
     drupal_set_message(t('This email address is already registered to an account. <br />You can connect in user settings form.<br />Account Username : @accountID', array('@accountID' => $account_info->name)));
     $options = array(

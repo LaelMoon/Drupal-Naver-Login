@@ -92,7 +92,11 @@ function naver_login_block_view($delta = '') {
         return;
       }
       $block['subject'] = t('Naver Login');
-      $block['content'] = t('Login to this site using your Naver credentials. ') . l(t('Login'), t('naver_login/auth/request'), array('html' => TRUE));
+      $block['content'] = t('Login to this site using your Naver credentials. <a href="@naver_login_url">Login</a>',
+        array(
+          '@naver_login_url' => url('naver_login/auth/request'),
+        )
+      );
       break;
   }
   return $block;
