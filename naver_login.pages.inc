@@ -2,8 +2,7 @@
 
 /**
  * @file
- * Provide Naver login auth request page, Naver login auth Callback page, User Registration page,
- * User Account settings form page.
+ * Provide Auth request, Callback, User Registration, Account settings form page.
  */
 
 /**
