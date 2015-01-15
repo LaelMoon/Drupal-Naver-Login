@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Provide Auth request, Callback, User Registration, Account settings form page.
+ * Provide Auth request, Callback, User Registration, Account settings tab page.
  */
 
 /**
