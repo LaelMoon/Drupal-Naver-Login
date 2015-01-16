@@ -29,6 +29,7 @@ function naver_login_settings_form($form, &$form_state) {
     '#size' => 10,
   );
 
+  // Fixed value. This option prevent multi domain problem.
   $form['naver_login_callback_uri'] = array(
     '#type' => 'textfield',
     '#title' => t('Client Callback URL'),
