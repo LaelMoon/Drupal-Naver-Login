@@ -38,7 +38,7 @@ function naver_login_auth_request() {
 
   $naver_login_service_request_uri = 'https://nid.naver.com/oauth2.0/authorize?' . http_build_query($http_params);
 
-  header('Location: ' . $naver_login_service_request_uri);
+  drupal_goto($naver_login_service_request_uri);
 }
 
 /**
