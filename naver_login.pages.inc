@@ -186,6 +186,7 @@ function naver_login_auth_retrieve() {
       $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
 
       naver_login_make_connection($user->uid, $naver_userinfo_enc_id, $data);
+      drupal_set_message(t('Account has been Successfully connected with Naver.'));
     }
     else {
       drupal_set_message(t('Your account email is differ from Naver account. connection failed.'), 'error');
@@ -445,7 +446,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     $form['naver_login_connect']['unlink'] = array(
       '#type' => 'submit',
       '#value' => t('Disconnect'),
-      '#validate' => array('naver_login_request_revoke'),
+      '#submit' => array('naver_login_request_revoke'),
     );
   }
   else {
@@ -453,7 +454,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
       '#type' => 'submit',
       '#value' => t('Connect'),
       '#disabled' => $is_admin ? TRUE : FALSE,
-      '#validate' => array('naver_login_request_connect'),
+      '#submit' => array('naver_login_request_connect'),
     );
   }
 
@@ -473,9 +474,9 @@ function naver_login_request_connect($form, &$form_state) {
  */
 function naver_login_request_revoke($form, &$form_state) {
   $account = $form_state['values']['account'];
-
   naver_login_revoke_connection($account->uid);
 
+  drupal_set_message(t('Account has been disconnected with Naver.'));
 }
 
 /**
