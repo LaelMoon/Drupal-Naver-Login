@@ -16,7 +16,7 @@ function naver_login_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Naver Login Client ID'),
     '#default_value' => variable_get('naver_login_client_id', ''),
-    '#description' => t('Visit <a href="https://developer.naver.com/openapi/register.nhn" target="_blank">https://developer.naver.com/openapi/register.nhn</a> to obtain Naver Login Service Credential.'),
+    '#description' => t('Visit <a href="@url" target="_blank">@url</a> to obtain Naver Login Service Credential.', array('@url' => 'https://developer.naver.com/openapi/register.nhn')),
     '#required' => TRUE,
     '#size' => 20,
   );
