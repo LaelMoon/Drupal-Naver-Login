@@ -286,13 +286,6 @@ function naver_login_revoke_connection($drupal_user_index_no) {
 }
 
 /**
- * Implements hook_user_cancel().
- */
-function naver_login_user_cancel($edit, $account, $method) {
-  naver_login_revoke_connection($account->uid);
-}
-
-/**
  * Implements hook_user_delete().
  */
 function naver_login_user_delete($account) {
