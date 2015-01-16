@@ -124,7 +124,7 @@ function naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id) {
 }
 
 /**
- * Check if user already registered in the naver_login_users table.
+ * Get additional information of this user.
  *
  * @param int $drupal_user_index_no
  *   Drupal Account uid.
@@ -195,7 +195,7 @@ function naver_login_make_connection($uid, $naver_userinfo_enc_id, $additional_d
 }
 
 /**
- * Revoke user into table naver_login_users.
+ * Revoke relationship.
  */
 function naver_login_revoke_connection($drupal_user_index_no) {
 
