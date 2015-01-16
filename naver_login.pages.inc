@@ -177,7 +177,6 @@ function naver_login_auth_retrieve() {
     global $user;
 
     if ($user->mail == $naver_userinfo_email) {
-
       $data['data']['naver_login_userinfo_email'] = $naver_userinfo_email;
       $data['data']['naver_login_userinfo_nickname'] = $naver_userinfo_nickname;
       $data['data']['naver_login_userinfo_enc_id'] = $naver_userinfo_enc_id;
@@ -187,7 +186,6 @@ function naver_login_auth_retrieve() {
       $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
       
       naver_login_make_connection($user->uid, $naver_userinfo_enc_id, $data);
-      // $user = user_save($user, $data);
     }
     else {
       drupal_set_message(t('Your account email is differ from Naver account. connection failed.'), 'error');
@@ -301,6 +299,12 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   if (in_array('administrator', $user->roles)) {
     $is_admin = TRUE;
   }
+  
+  $naver_login_additional_data = naver_login_get_additional_data_by_uid($account->uid);
+  $is_account_connected = FALSE;
+  if ($naver_login_additional_data) {
+    $is_account_connected = TRUE;
+  }
 
   $form['naver_login'] = array(
     '#title' => t('Naver Login info (ADMIN VIEW)'),
@@ -309,58 +313,58 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     '#access' => $is_admin,
   );
 
-  $form['naver_login']['naver_login_userinfo_enc_id'] = array(
+  $form['naver_login']['naver_enc_id'] = array(
     '#type' => 'textfield',
     '#title' => t('User Encrypted ID'),
-    '#default_value' => isset($account->data['naver_login_userinfo_enc_id']) ? $account->data['naver_login_userinfo_enc_id'] : '',
+    '#default_value' => $is_account_connected ? $naver_login_additional_data['naver_enc_id'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
 
-  $form['naver_login']['naver_login_userinfo_email'] = array(
+  $form['naver_login']['naver_email'] = array(
     '#type' => 'textfield',
     '#title' => t('User Email'),
-    '#default_value' => isset($account->data['naver_login_userinfo_email']) ? $account->data['naver_login_userinfo_email'] : '',
+    '#default_value' => $is_account_connected ? $naver_login_additional_data['naver_email'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
 
-  $form['naver_login']['naver_login_userinfo_nickname'] = array(
+  $form['naver_login']['naver_nickname'] = array(
     '#type' => 'textfield',
     '#title' => t('User Nickname'),
-    '#default_value' => isset($account->data['naver_login_userinfo_nickname']) ? $account->data['naver_login_userinfo_nickname'] : '',
+    '#default_value' => $is_account_connected ? $naver_login_additional_data['naver_nickname'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
 
-  $form['naver_login']['naver_login_userinfo_profile_image'] = array(
+  $form['naver_login']['naver_profile_image'] = array(
     '#type' => 'textfield',
     '#title' => t('User Profile Image'),
-    '#default_value' => isset($account->data['naver_login_userinfo_profile_image']) ? $account->data['naver_login_userinfo_profile_image'] : '',
+    '#default_value' => $is_account_connected ? $naver_login_additional_data['naver_profile_image'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
 
-  $form['naver_login']['naver_login_userinfo_age'] = array(
+  $form['naver_login']['naver_age'] = array(
     '#type' => 'textfield',
     '#title' => t('User Age'),
-    '#default_value' => isset($account->data['naver_login_userinfo_age']) ? $account->data['naver_login_userinfo_age'] : '',
+    '#default_value' => $is_account_connected ? $naver_login_additional_data['naver_age'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
 
-  $form['naver_login']['naver_login_userinfo_birthday'] = array(
+  $form['naver_login']['naver_birthday'] = array(
     '#type' => 'textfield',
     '#title' => t('User Birthday'),
-    '#default_value' => isset($account->data['naver_login_userinfo_birthday']) ? $account->data['naver_login_userinfo_birthday'] : '',
+    '#default_value' => $is_account_connected ? $naver_login_additional_data['naver_birthday'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
 
-  $form['naver_login']['naver_login_userinfo_gender'] = array(
+  $form['naver_login']['gender'] = array(
     '#type' => 'textfield',
     '#title' => t('User Gender'),
-    '#default_value' => isset($account->data['naver_login_userinfo_gender']) ? $account->data['naver_login_userinfo_gender'] : '',
+    '#default_value' => $is_account_connected ? $naver_login_additional_data['gender'] : '',
     '#disabled' => TRUE,
     '#access' => $is_admin,
   );
@@ -370,15 +374,10 @@ function naver_login_user_settings_form($form, $form_state, $account) {
     '#value' => $account,
   );
 
-  $is_account_connected = FALSE;
-  if (isset($account->data['naver_login_userinfo_enc_id']) && $account->data['naver_login_userinfo_enc_id'] != '') {
-    $is_account_connected = TRUE;
-  }
-
   $form['naver_login_connect'] = array(
     '#title' => t('Naver account connect (auto login)'),
     '#type' => 'fieldset',
-    '#description' => $is_account_connected ? t('This account connected with <em>@naver_mail</em>.', array('@naver_mail' => $account->data['naver_login_userinfo_email'])) : t('If you want connect this account and naver account, Click Connect button below.'),
+    '#description' => $is_account_connected ? t('This account connected with <em>@naver_mail</em>.', array('@naver_mail' => $naver_login_additional_data['naver_email'])) : t('If you want connect this account and naver account, Click Connect button below.'),
   );
 
   if ($is_account_connected) {
@@ -416,17 +415,6 @@ function naver_login_request_revoke($form, &$form_state) {
 
   naver_login_revoke_connection($account->uid);
 
-/*
-  $data['data']['naver_login_userinfo_email'] = NULL;
-  $data['data']['naver_login_userinfo_nickname'] = NULL;
-  $data['data']['naver_login_userinfo_enc_id'] = NULL;
-  $data['data']['naver_login_userinfo_profile_image'] = NULL;
-  $data['data']['naver_login_userinfo_age'] = NULL;
-  $data['data']['naver_login_userinfo_birthday'] = NULL;
-  $data['data']['naver_login_userinfo_gender'] = NULL;
-
-  user_save($account, $data);
-*/
 }
 
 /**

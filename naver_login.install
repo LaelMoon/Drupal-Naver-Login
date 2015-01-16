@@ -77,19 +77,19 @@ function naver_login_schema() {
       ),
       'naver_age' => array(
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 10,
         'not null' => TRUE,
         'default' => '',
       ),
       'naver_birthday' => array(
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 10,
         'not null' => TRUE,
         'default' => '',
       ),
       'gender' => array(
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 10,
         'not null' => TRUE,
         'default' => '',
       ),
