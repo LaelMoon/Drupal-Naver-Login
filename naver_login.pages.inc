@@ -178,8 +178,6 @@ function naver_login_auth_retrieve() {
 
     if ($user->mail == $naver_userinfo_email) {
 
-      naver_login_make_connection($user->uid, $naver_userinfo_enc_id);
-
       $data['data']['naver_login_userinfo_email'] = $naver_userinfo_email;
       $data['data']['naver_login_userinfo_nickname'] = $naver_userinfo_nickname;
       $data['data']['naver_login_userinfo_enc_id'] = $naver_userinfo_enc_id;
@@ -187,7 +185,9 @@ function naver_login_auth_retrieve() {
       $data['data']['naver_login_userinfo_age'] = $naver_userinfo_age;
       $data['data']['naver_login_userinfo_birthday'] = $naver_userinfo_birthday;
       $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
-      $user = user_save($user, $data);
+      
+      naver_login_make_connection($user->uid, $naver_userinfo_enc_id, $data);
+      // $user = user_save($user, $data);
     }
     else {
       drupal_set_message(t('Your account email is differ from Naver account. connection failed.'), 'error');
@@ -416,6 +416,7 @@ function naver_login_request_revoke($form, &$form_state) {
 
   naver_login_revoke_connection($account->uid);
 
+/*
   $data['data']['naver_login_userinfo_email'] = NULL;
   $data['data']['naver_login_userinfo_nickname'] = NULL;
   $data['data']['naver_login_userinfo_enc_id'] = NULL;
@@ -425,6 +426,7 @@ function naver_login_request_revoke($form, &$form_state) {
   $data['data']['naver_login_userinfo_gender'] = NULL;
 
   user_save($account, $data);
+*/
 }
 
 /**
