@@ -354,8 +354,6 @@ function naver_login_register_form_submit($form, &$form_state) {
  */
 function naver_login_user_settings_form($form, $form_state, $account) {
 
-  global $user;
-
   $is_admin = FALSE;
 
   if (user_access('administer users')) {
