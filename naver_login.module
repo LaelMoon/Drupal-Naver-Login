@@ -103,23 +103,6 @@ function naver_login_block_view($delta = '') {
 }
 
 /**
- * Implements hook_theme().
- */
-function naver_login_theme() {
-  return array(
-    'naver_login_user_picture_override' => array(
-      'variables' => array(
-        'fbuid' => NULL,
-        'account' => NULL,
-        'user_url' => NULL,
-        'size' => '',
-      ),
-      'file' => 'naver_login.pages.inc',
-    ),
-  );
-}
-
-/**
  * Check if user already registered in the naver_login_users table.
  *
  * @param int $naver_userinfo_enc_id
