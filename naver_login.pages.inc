@@ -193,7 +193,6 @@ function naver_login_auth_retrieve() {
 
     unset($_SESSION['naver_login_loggedin_user_want_connect']);
     drupal_goto('user/' . $user->uid . '/edit/naver_login');
-    exit;
   }
 
   // If already connected,
@@ -286,6 +285,68 @@ function naver_login_auth_register($form, &$form_state) {
 }
 
 /**
+ * Check Auth session valid or Not.
+ */
+function naver_login_register_form_validate($form, &$form_state) {
+  if (!isset($_GET['state'])
+    || !isset($_SESSION['naver_login']['naver_login_state_token'])
+    || !isset($_SESSION[$_GET['state']]['user_profile'])
+    || $_GET['state'] != $_SESSION['naver_login']['naver_login_state_token']
+    ) {
+
+    drupal_set_message(t('Your session has been expired. Please try Naver Login again.'), 'error');
+    drupal_goto('user');
+  }
+
+}
+
+/**
+ * After validation.
+ */
+function naver_login_register_form_submit($form, &$form_state) {
+  $user_profile_array = unserialize($_SESSION[$_GET['state']]['user_profile']);
+
+  $naver_userinfo_email = $user_profile_array['response']['email'];
+  $naver_userinfo_nickname = $user_profile_array['response']['nickname'];
+  $naver_userinfo_enc_id = $user_profile_array['response']['enc_id'];
+  $naver_userinfo_profile_image = $user_profile_array['response']['profile_image'];
+  $naver_userinfo_age = $user_profile_array['response']['age'];
+  $naver_userinfo_birthday = $user_profile_array['response']['birthday'];
+  $naver_userinfo_gender = $user_profile_array['response']['gender'];
+
+  $drupal_uid = naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id);
+
+  // If already connected.
+  if ($drupal_uid) {
+    drupal_set_message(t('Retrying registration. Your Naver account is already assigned to one account on our site.'), 'error');
+    watchdog('naver_login', 'Error creating account for @naver_userinfo_enc_id', array('@naver_userinfo_enc_id' => $naver_userinfo_enc_id), WATCHDOG_ALERT);
+    drupal_goto();
+  }
+
+  $user = $form_state['user'];
+
+  if (!$user) {
+    drupal_set_message(t('Error saving user account.'), 'error');
+    drupal_goto();
+  }
+
+  $data['data']['naver_login_userinfo_email'] = $naver_userinfo_email;
+  $data['data']['naver_login_userinfo_nickname'] = $naver_userinfo_nickname;
+  $data['data']['naver_login_userinfo_enc_id'] = $naver_userinfo_enc_id;
+  $data['data']['naver_login_userinfo_profile_image'] = $naver_userinfo_profile_image;
+  $data['data']['naver_login_userinfo_age'] = $naver_userinfo_age;
+  $data['data']['naver_login_userinfo_birthday'] = $naver_userinfo_birthday;
+  $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
+
+  naver_login_make_connection($user->uid, $naver_userinfo_enc_id, $data);
+
+  unset($_SESSION[$_GET['state']]);
+  unset($_SESSION['naver_login']['naver_login_state_token']);
+
+  drupal_goto('user');
+}
+
+/**
  * This form allows the user to manage their Naver Account Connection.
  *
  * Only admin can view account's Auth details.
@@ -296,7 +357,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
 
   $is_admin = FALSE;
 
-  if (in_array('administrator', $user->roles)) {
+  if (user_access('administer users')) {
     $is_admin = TRUE;
   }
 
