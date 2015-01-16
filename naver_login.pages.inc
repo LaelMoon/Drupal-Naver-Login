@@ -184,7 +184,7 @@ function naver_login_auth_retrieve() {
       $data['data']['naver_login_userinfo_age'] = $naver_userinfo_age;
       $data['data']['naver_login_userinfo_birthday'] = $naver_userinfo_birthday;
       $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
-      
+
       naver_login_make_connection($user->uid, $naver_userinfo_enc_id, $data);
     }
     else {
@@ -299,7 +299,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   if (in_array('administrator', $user->roles)) {
     $is_admin = TRUE;
   }
-  
+
   $naver_login_additional_data = naver_login_get_additional_data_by_uid($account->uid);
   $is_account_connected = FALSE;
   if ($naver_login_additional_data) {

@@ -143,10 +143,10 @@ function naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id) {
 /**
  * Check if user already registered in the naver_login_users table.
  *
- * @param int $naver_userinfo_enc_id
- *   Naver login id.
+ * @param int $drupal_user_index_no
+ *   Drupal Account uid.
  *
- * @return array()
+ * @return array
  *   NULL there is no data associate this account.
  */
 function naver_login_get_additional_data_by_uid($drupal_user_index_no) {
