@@ -441,14 +441,14 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   );
 
   if ($is_account_connected) {
-    $form['naver_login_connect']['unlink'] = array(
+    $form['naver_login_connect']['disconnect'] = array(
       '#type' => 'submit',
       '#value' => t('Disconnect'),
       '#submit' => array('naver_login_request_revoke'),
     );
   }
   else {
-    $form['naver_login_connect']['profile'] = array(
+    $form['naver_login_connect']['connect'] = array(
       '#type' => 'submit',
       '#value' => t('Connect'),
       '#disabled' => $is_admin ? TRUE : FALSE,
