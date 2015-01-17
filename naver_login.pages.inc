@@ -153,13 +153,8 @@ function naver_login_auth_retrieve() {
    */
   $user_profile_array = json_decode(json_encode($user_profile_xml), TRUE);
 
-  $naver_userinfo_email = $user_profile_array['response']['email'];
-  $naver_userinfo_nickname = $user_profile_array['response']['nickname'];
   $naver_userinfo_enc_id = $user_profile_array['response']['enc_id'];
-  $naver_userinfo_profile_image = $user_profile_array['response']['profile_image'];
-  $naver_userinfo_age = $user_profile_array['response']['age'];
-  $naver_userinfo_birthday = $user_profile_array['response']['birthday'];
-  $naver_userinfo_gender = $user_profile_array['response']['gender'];
+  $naver_userinfo_email = $user_profile_array['response']['email'];
 
   $drupal_uid = naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id);
 
@@ -177,15 +172,7 @@ function naver_login_auth_retrieve() {
     global $user;
 
     if ($user->mail == $naver_userinfo_email) {
-      $data['data']['naver_login_userinfo_email'] = $naver_userinfo_email;
-      $data['data']['naver_login_userinfo_nickname'] = $naver_userinfo_nickname;
-      $data['data']['naver_login_userinfo_enc_id'] = $naver_userinfo_enc_id;
-      $data['data']['naver_login_userinfo_profile_image'] = $naver_userinfo_profile_image;
-      $data['data']['naver_login_userinfo_age'] = $naver_userinfo_age;
-      $data['data']['naver_login_userinfo_birthday'] = $naver_userinfo_birthday;
-      $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
-
-      naver_login_make_connection($user->uid, $naver_userinfo_enc_id, $data);
+      naver_login_make_connection($user->uid, $naver_userinfo_enc_id, $user_profile_array);
       drupal_set_message(t('Account has been Successfully connected with Naver.'));
     }
     else {
@@ -307,13 +294,7 @@ function naver_login_register_form_validate($form, &$form_state) {
 function naver_login_register_form_submit($form, &$form_state) {
   $user_profile_array = unserialize($_SESSION[$_GET['state']]['user_profile']);
 
-  $naver_userinfo_email = $user_profile_array['response']['email'];
-  $naver_userinfo_nickname = $user_profile_array['response']['nickname'];
   $naver_userinfo_enc_id = $user_profile_array['response']['enc_id'];
-  $naver_userinfo_profile_image = $user_profile_array['response']['profile_image'];
-  $naver_userinfo_age = $user_profile_array['response']['age'];
-  $naver_userinfo_birthday = $user_profile_array['response']['birthday'];
-  $naver_userinfo_gender = $user_profile_array['response']['gender'];
 
   $drupal_uid = naver_login_get_drupal_uid_by_naver_enc_id($naver_userinfo_enc_id);
 
@@ -331,15 +312,7 @@ function naver_login_register_form_submit($form, &$form_state) {
     drupal_goto();
   }
 
-  $data['data']['naver_login_userinfo_email'] = $naver_userinfo_email;
-  $data['data']['naver_login_userinfo_nickname'] = $naver_userinfo_nickname;
-  $data['data']['naver_login_userinfo_enc_id'] = $naver_userinfo_enc_id;
-  $data['data']['naver_login_userinfo_profile_image'] = $naver_userinfo_profile_image;
-  $data['data']['naver_login_userinfo_age'] = $naver_userinfo_age;
-  $data['data']['naver_login_userinfo_birthday'] = $naver_userinfo_birthday;
-  $data['data']['naver_login_userinfo_gender'] = $naver_userinfo_gender;
-
-  naver_login_make_connection($user->uid, $naver_userinfo_enc_id, $data);
+  naver_login_make_connection($user->uid, $naver_userinfo_enc_id, $user_profile_array);
 
   unset($_SESSION[$_GET['state']]);
   unset($_SESSION['naver_login']['naver_login_state_token']);

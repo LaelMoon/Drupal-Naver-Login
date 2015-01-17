@@ -179,12 +179,12 @@ function naver_login_make_connection($uid, $naver_userinfo_enc_id, $additional_d
     db_merge('naver_login_users')
       ->key(array('naver_enc_id' => $naver_userinfo_enc_id))
       ->fields(array(
-        'naver_email' => $additional_data['data']['naver_login_userinfo_email'],
-        'naver_nickname' => $additional_data['data']['naver_login_userinfo_nickname'],
-        'naver_profile_image' => $additional_data['data']['naver_login_userinfo_profile_image'],
-        'naver_age' => $additional_data['data']['naver_login_userinfo_age'],
-        'naver_birthday' => $additional_data['data']['naver_login_userinfo_birthday'],
-        'gender' => $additional_data['data']['naver_login_userinfo_gender'],
+        'naver_email' => $additional_data['response']['email'],
+        'naver_nickname' => $additional_data['response']['nickname'],
+        'naver_profile_image' => $additional_data['response']['profile_image'],
+        'naver_age' => $additional_data['response']['age'],
+        'naver_birthday' => $additional_data['response']['birthday'],
+        'gender' => $additional_data['response']['gender'],
       ))
       ->execute();
   }
