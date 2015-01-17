@@ -7,6 +7,8 @@
 
 /**
  * Generate Naver login auth request.
+ *
+ * API Spec : http://developer.naver.com/wiki/pages/NaverLogin_spec .
  */
 function naver_login_auth_request() {
 
@@ -342,7 +344,7 @@ function naver_login_user_settings_form($form, $form_state, $account) {
   $form['naver_login'] = array(
     '#title' => t('Naver Login info (ADMIN VIEW)'),
     '#type' => 'fieldset',
-    '#description' => t('The data received from Naver.<br />Only admin can view this info.<br />Data will remove when Naver account disconnect. (also drupal user account cancelation)<br /><br />'),
+    '#description' => t('The data received from Naver.<br />Only admin can view this info.<br />Data will be removed when Naver account disconnect. (also drupal user account cancelation)<br /><br />'),
     '#access' => $is_admin,
   );
 
